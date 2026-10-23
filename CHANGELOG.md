@@ -7,6 +7,7 @@ All notable changes to `claude-red` are documented here. The library follows a p
 ### Changed
 
 - Replaced an inactive EXIF viewer reference in `offensive-osint` with a browser-local metadata viewer and added evidence-corroboration guidance.
+- `offensive-cicd-pipeline` — added a "Weak / Default Credentials Initial Access" subsection to the Jenkins Exploitation section (default-creds login probing, Hydra brute force, confirming Script Console access), covering the initial-access step beginner boxes like HTB Pennyworth rely on before the existing Script Console RCE content.
 
 ### Planned
 

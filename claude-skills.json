@@ -5,7 +5,8 @@
   "homepage": "https://github.com/SnailSploit/claude-red",
   "categories": {
     "active-directory": [
-      "offensive-active-directory"
+      "offensive-active-directory",
+      "offensive-netexec"
     ],
     "ai": [
       "offensive-ai-security"
@@ -137,6 +138,12 @@
       "description": "Active Directory attack methodology for internal network red team engagements. Covers reconnaissance (BloodHound, PowerView, ADExplorer), credential abuse (Kerberoasting, ASREProasting, NTLM relay, LLMNR/NBT-NS poisoning), privilege escalation (ACL abuse, GPO abuse, unconstrained/constrained delegation), lateral movement (Pass-the-Hash, Pass-the-Ticket, Overpass-the-Hash, WMI/WinRM/PsExec), persistence (Golden/Silver/Diamond Tickets, DCSync, DCShadow, AdminSDHolder, Skeleton Key), forest trust attacks, ADCS abuse (ESC1-ESC15), and modern MDI/Defender for Identity evasion. Use when assessing on-prem AD, hybrid AD/Entra ID environments, or ADCS deployments."
     },
     {
+      "name": "offensive-netexec",
+      "category": "active-directory",
+      "path": "Skills/active-directory/offensive-netexec/SKILL.md",
+      "description": ">\nUse this skill whenever the user asks about NetExec (nxc) — a network\nexploitation and post-exploitation tool for Active Directory environments.\nTriggers include: any mention of 'nxc', 'netexec', 'crackmapexec' successor\nquestions, AD enumeration, SMB/LDAP/WinRM/MSSQL/SSH/RDP/VNC/WMI/FTP/NFS\nprotocol attacks, password spraying, credential dumping (SAM, NTDS, LSASS,\nDPAPI), Kerberoasting, ASREPRoasting, lateral movement, BloodHound collection,\nmodule usage, or any pentest workflow involving Windows domain environments.\nThis skill covers ALL protocols, ALL modules, and ALL core features of NetExec.\nAlways provide full command examples with correct flags and options."
+    },
+    {
       "name": "offensive-ai-security",
       "category": "ai",
       "path": "Skills/ai/offensive-ai-security/SKILL.md",
@@ -170,7 +177,7 @@
       "name": "offensive-cicd-pipeline",
       "category": "cicd",
       "path": "Skills/cicd/offensive-cicd-pipeline/SKILL.md",
-      "description": "Comprehensive CI/CD pipeline exploitation methodology covering GitHub Actions injection vectors (expression injection via PR titles and issue bodies, workflow_run event abuse, GITHUB_TOKEN over-scoping, composite action supply chain compromise), Jenkins attack paths (Groovy sandbox escapes, script console remote code execution, Java remoting deserialization, credential store dumping, shared library injection), GitLab CI exploitation (YAML anchor injection, runner registration token abuse, CI variable extraction, protected branch bypass via merge request pipelines), and Azure DevOps pipeline agent compromise with service connection theft. Includes artifact poisoning techniques across all platforms, tooling guidance for gato and jenkins-attack-framework, and maps to MITRE ATT&CK T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain). Covers enumeration of pipeline configurations, privilege escalation from contributor to code execution, lateral movement through pipeline trust boundaries, and persistence via modified workflow definitions. Each technique section provides working exploitation code, detection indicators, and defensive countermeasures."
+      "description": "Comprehensive CI/CD pipeline exploitation methodology covering GitHub Actions injection vectors (expression injection via PR titles and issue bodies, workflow_run event abuse, GITHUB_TOKEN over-scoping, composite action supply chain compromise), Jenkins attack paths (default/weak credential login, Groovy sandbox escapes, script console remote code execution, Java remoting deserialization, credential store dumping, shared library injection), GitLab CI exploitation (YAML anchor injection, runner registration token abuse, CI variable extraction, protected branch bypass via merge request pipelines), and Azure DevOps pipeline agent compromise with service connection theft. Includes artifact poisoning techniques across all platforms, tooling guidance for gato and jenkins-attack-framework, and maps to MITRE ATT&CK T1195.002 (Supply Chain Compromise: Compromise Software Supply Chain). Covers enumeration of pipeline configurations, privilege escalation from contributor to code execution, lateral movement through pipeline trust boundaries, and persistence via modified workflow definitions. Each technique section provides working exploitation code, detection indicators, and defensive countermeasures."
     },
     {
       "name": "offensive-cicd-secrets",
@@ -599,6 +606,6 @@
       "description": "Zigbee, Thread, and Matter mesh-protocol attack methodology — IEEE 802.15.4 sniffing with TI CC2531 / CC2540 / Sonoff Zigbee Dongle E, KillerBee toolkit, Touchlink commissioning abuse with the well-known transport key, replay/injection attacks, Zigbee Cluster Library command abuse for door locks and bulbs, Thread network credential theft, Matter commissioning chain analysis, and 6LoWPAN/IPv6 routing exploitation. Use when targeting smart-home or commercial mesh deployments, Zigbee-based door locks, lighting, or sensor networks."
     }
   ],
-  "skill_count": 78,
+  "skill_count": 79,
   "category_count": 23
 }
