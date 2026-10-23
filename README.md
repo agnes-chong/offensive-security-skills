@@ -49,9 +49,9 @@ cd claude-red && git sparse-checkout set Skills/web Skills/active-directory
 ### Claude Code
 
 ```bash
-cat Skills/web/offensive-sqli/SKILL.md | claude --system-file -
+claude --system-prompt-file Skills/web/offensive-sqli/SKILL.md
 
-cat Skills/active-directory/**/SKILL.md | claude --system-file -
+claude --append-system-prompt "$(cat Skills/active-directory/**/SKILL.md)"
 ```
 
 ### Claude.ai (Manual)
